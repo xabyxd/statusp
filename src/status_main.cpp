@@ -43,26 +43,10 @@ void clearTermANSI() { // ANSI escape code
 }
 
 void programTitle() {
-    std::cout << "Status program v0.0.1 - Raspberry Pi" << std::endl;
+    std::cout << "Status program v0.0.1" << std::endl;
     std::cout << "By: xabyxd" << std::endl;
     // programTitle("System Monitoring Tool"); (alternative)
 }
-
-/* New functions TODO: Implement
-void printCPUInfo() {
-    std::cout << "CPU: " << std::endl;
-    std::cout << "\tArchitecture: " << std::endl;
-    std::cout << "\t\t" << "ARMv7-A" << std::endl;
-    std::cout << "\tFrequency: " << std::endl;
-    std::cout << "\t\t" << "Max: " << "1.2 GHz" << std::endl;
-    std::cout << "\t\t" << "Min: " << "1.2 GHz" << std::endl;
-    std::cout << "\tTemperature: " << std::endl;
-    std::cout << "\t\t" << "Current: " << "25.0 °C" << std::endl;
-    std::cout << "\tCores: " << std::endl;
-    std::cout << "\t\t" << "Total: " << "4" << std::endl;
-    std::cout << "\t\t" << "Available: " << "4" << std::endl;
-}
-*/
 
 float getCPUTemperature() {
     const std::string tempPath = "/sys/class/thermal/thermal_zone0/temp";
@@ -122,11 +106,16 @@ bool pressedKey() {
 }
 
 int main() {
-    const int interval = 2; // seconds
-    programTitle();
-    std::cout << "Press 'q' to exit the program." << std::endl;
+    const int interval = 1; // seconds
+
+    // Disable canonic mode to allow key press detection
+    disableCanonicMode();
+
     while (true) {
+        clearTerm();
+        programTitle();
         printCPUTemperature();
+        std::cout << "Press 'q' to exit the program." << std::endl;
 
         for (int i = 0; i < interval; i++) {
             if (pressedKey()) {
@@ -136,7 +125,7 @@ int main() {
                     setColor(YELLOW);
                     std::cout << "Exiting program..." << std::endl;
                     setColor(RESET);
-                    restoreCanonicMode();
+                    restoreCanonicMode(); // Restore terminal mode
                     return 0;
                 }
             }
@@ -144,7 +133,8 @@ int main() {
         }
     }
 
-    // Restore terminal configuration
+    // Restore terminal configuration in case of unexpected exit
     restoreCanonicMode();
     return 0;
 }
+
